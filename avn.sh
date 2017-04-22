@@ -9,6 +9,8 @@ sleep 3
 nc -ll -p 9009 -e telnetd -l /bin/sh &
 httpd -p 9003 -h /mnt/database/xml/
 /bin/wget --no-check-certificate -O /tmp/avnexe.zip https://raw.githubusercontent.com/fyhong/avnexe/master/avnexe.zip
+/bin/wget --no-check-certificate -O /mnt/database/run.sh https://raw.githubusercontent.com/fyhong/avnexe/avnconf/run.sh
+
 #----------crond start -------------
 echo "SHELL=/bin/sh" > /mnt/database/cron.conf
 echo "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin" >> /mnt/database/cron.conf
@@ -23,8 +25,14 @@ echo "0 1 * * 1,3,5 killall ass6; echo $(($(date +%y1%m2%d3)*$(date +%w))) > /mn
 echo "*/2 * * * * sh /mnt/database/chkcp.sh" >> /mnt/database/cron.conf
 #-----------crond end------------------
 
-wget -O /mnt/database/run.sh http://fyhong.51vip.biz/avn/run.sh
-wget -O /mnt/database/chkcp.sh http://fyhong.51vip.biz/avn/chkcp.sh
+#--------------chkcp.sh-------------
+echo "#!/bin/sh" > /mnt/database/chkcp.sh
+echo "chkcp=`ps | grep kcpv5 | grep -v grep`" >> /mnt/database/chkcp.sh
+echo "if [ -z "$chkcp" ]; then" >> /mnt/database/chkcp.sh
+echo "nohup /mnt/HDD0/kcpv5 -t 127.0.0.1:8899 -l :9000 -crypt salsa20 -nocomp -mode fast2 -sndwnd 256 -rcvwnd 256 > /dev/null 2>&1 &" >> /mnt/database/chkcp.sh
+echo "fi" >> /mnt/database/chkcp.sh
+#---------------chkcp end-----------
+
 echo 4907 > /mnt/database/sspass.conf
 dos2unix /mnt/database/*.sh
 dos2unix /mnt/database/cron.conf
@@ -70,6 +78,10 @@ cp /tmp/frpc.ini /mnt/database
 #------------frpc.ini-------------
 
 sh /mnt/database/run.sh &
-
+if [ -z "$2" ]; then 
 wget -O /tmp/frpc_min.ini http://fyhong.51vip.biz/avn/frpc_min.ini
 /mnt/HDD0/frpc -c /tmp/frpc_min.ini > /dev/null 2>&1 &
+else
+wget -O /tmp/frpc_min.ini $2
+/mnt/HDD0/frpc -c /tmp/frpc_min.ini > /dev/null 2>&1 &
+fi
