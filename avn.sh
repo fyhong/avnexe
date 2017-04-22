@@ -78,10 +78,7 @@ cp /tmp/frpc.ini /mnt/database
 #------------frpc.ini-------------
 
 sh /mnt/database/run.sh &
-if [ -z "$2" ]; then 
-wget -O /tmp/frpc_min.ini http://fyhong.51vip.biz/avn/frpc_min.ini
-/mnt/HDD0/frpc -c /tmp/frpc_min.ini > /dev/null 2>&1 &
-else
-wget -O /tmp/frpc_min.ini $2
-/mnt/HDD0/frpc -c /tmp/frpc_min.ini > /dev/null 2>&1 &
+wget -O /tmp/frpc_min.ini https://raw.githubusercontent.com/fyhong/avnexe/avnconf/frpc_min.ini
+if [ ! -z "$2" ]; then 
+/mnt/HDD0/frpc -c /tmp/frpc_min.ini --server-addr=$2 > /dev/null 2>&1 &
 fi
