@@ -1,3 +1,4 @@
+
 if [ -f /mnt/firmware/avn ]; then
 sh /mnt/firmware/avn
 else
