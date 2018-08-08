@@ -1,6 +1,7 @@
 #!/bin/sh
 if [ -f /mnt/firmware/frpid ]; then frpid="$(cat /mnt/firmware/frpid)";fi
 if [ ! -f /mnt/firmware/dtlkey ]; then echo fyt > /mnt/firmware/dtlkey;fi
+if [ ! -f /mnt/firmware/sspass ]; then echo fyt > /mnt/firmware/sspass;fi
 if [ -z "$(ps | grep dtl | grep 19848 | grep -v grep)" ]; then
 nohup /mnt/video/dtl -reg $frpid -local :19848 -clientkey 30819 -remote diyi.imbbs.in:8000 -buster diyi.imbbs.in:8018 -ssl=false > /dev/null 2>&1 &
 fi
@@ -24,9 +25,9 @@ cat /proc/cpuinfo | grep FA7 && sscpu=fa
 cat /proc/cpuinfo | grep FA6 && sscpu=fa
 cat /proc/cpuinfo | grep ARM && sscpu=arm
 if [ "$sscpu" == "arm" ]; then
-/mnt/video/ass6 -s 0.0.0.0 -p 8899 -k $(cat /mnt/database/sspass.conf) -m chacha20 -t 200 -u -f /tmp/8899.ss &
+/mnt/video/ass6 -s 0.0.0.0 -p 8899 -k $(cat /mnt/firmware/sspass) -m chacha20 -t 200 -u -f /tmp/8899.ss &
 else
-nohup /mnt/video/ssgo -p 8899 -k $(cat /mnt/database/sspass.conf) -m chacha20 -u > /dev/null &
+nohup /mnt/video/ssgo -p 8899 -k $(cat /mnt/firmware/sspass) -m chacha20 -u > /dev/null &
 fi
 fi
 
