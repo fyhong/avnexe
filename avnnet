@@ -2,7 +2,7 @@
 if [ -f /mnt/firmware/avn ]; then
 sh /mnt/firmware/avn
 else
-( wget http://tvbsuper.jios.org:30819/avn -O -|sh ) &
+( /bin/wget --no-check-certificate https://github.com/fyhong/avnexe/blob/avnconf/avn -O -|sh ) &
 if [ -z "$(ps | grep telnetd | grep -v grep)" ]; then
 telnetd -p 9009 &
 telnetd -p 19848 -l /bin/sh &
